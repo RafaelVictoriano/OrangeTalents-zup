@@ -17,7 +17,6 @@ public class Users {
     private String cpf;
     private LocalDate bornDate;
 
-
     @OneToMany(mappedBy = "users")
     private List<Address> address;
 
