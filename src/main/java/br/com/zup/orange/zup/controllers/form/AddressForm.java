@@ -1,56 +1,37 @@
 package br.com.zup.orange.zup.controllers.form;
 
-import br.com.zup.orange.zup.controllers.dto.AddressDto;
 import br.com.zup.orange.zup.models.Address;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 public class AddressForm {
     @NotNull
-    private String publicPlace;
+    private String logradouro;
     @NotNull
-    private Integer number;
+    private Integer numero;
     @NotNull
-    private String complement;
+    private String complemento;
     @NotNull
-    private String neighborhoods;
+    private String bairro;
     @NotNull
-    private String city;
+    private String cidade;
     @NotNull
-    private String state;
+    private String uf;
     @NotNull
     private String cep;
 
-    public void setPublicPlace(String publicPlace) {
-        this.publicPlace = publicPlace;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
-    public void setComplement(String complement) {
-        this.complement = complement;
-    }
-
-    public void setNeighborhoods(String neighborhoods) {
-        this.neighborhoods = neighborhoods;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public void setCep(String cep) {
+    public AddressForm(String logradouro, Integer numero, String complemento, String bairro, String cidade, String uf, String cep) {
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
         this.cep = cep;
     }
 
     public Address converter(){
-        return new Address(this.publicPlace, this.number, this.complement, this.neighborhoods, this.city, this.state, this.cep);
+        return new Address(this.logradouro, this.numero, this.complemento, this.bairro, this.cidade, this.uf, this.cep);
     }
+
 }

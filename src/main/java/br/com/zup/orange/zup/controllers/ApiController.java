@@ -10,6 +10,7 @@ import br.com.zup.orange.zup.models.Address;
 import br.com.zup.orange.zup.models.Users;
 import br.com.zup.orange.zup.repository.AddressRespository;
 import br.com.zup.orange.zup.repository.UserRespository;
+import br.com.zup.orange.zup.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,10 +31,14 @@ public class ApiController {
     @Autowired
     private AddressRespository addressRespository;
 
+    @Autowired
+    private AddressService service;
+
 
     @GetMapping("/{id}")
     public ResponseEntity<DetailsUsersDto> list(@PathVariable Long id) {
         Optional<Users> user = userRespository.findById(id);
+
         if (user.isPresent()) {
             return ResponseEntity.ok(new DetailsUsersDto(user.get()));
         }
@@ -51,10 +56,11 @@ public class ApiController {
         return ResponseEntity.created(uri1).body(new UsersDto(user));
     }
 
-    @PostMapping("/address")
+
+    @PostMapping("/address/{cep}")
     @Transactional
-    public ResponseEntity<AddressDto> AddreesCadaster(@RequestBody @Valid AddressForm form, UriComponentsBuilder uri) {
-        Address address = form.converter();
+    public ResponseEntity<AddressDto> AddreesCadaster(@PathVariable("cep")  String cep, UriComponentsBuilder uri) {
+        Address address = service.createAddress(cep);
         addressRespository.save(address);
 
         URI uri2 = uri.path("/zup/address/{id}").buildAndExpand(address.getId()).toUri();
@@ -63,9 +69,9 @@ public class ApiController {
 
     @PutMapping("/{id}")
     @Transactional //Garantir que ele faça a transação no fim do metodo
-    public ResponseEntity<UsersDto> updatte(@PathVariable Long id, @RequestBody @Valid UpdateUserform form) {
-
+    public ResponseEntity<UsersDto> update(@PathVariable Long id, @RequestBody @Valid UpdateUserform form) {
         Optional<Users> optinal = userRespository.findById(id);
+
         if (optinal.isPresent()) {
             Users user = form.update(id, userRespository);
             return ResponseEntity.ok(new UsersDto(user));
