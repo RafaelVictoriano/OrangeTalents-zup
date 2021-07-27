@@ -11,6 +11,7 @@ import br.com.zup.orange.zup.models.Users;
 import br.com.zup.orange.zup.repository.AddressRespository;
 import br.com.zup.orange.zup.repository.UserRespository;
 import br.com.zup.orange.zup.service.AddressService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,7 +39,6 @@ public class ApiController {
     @GetMapping("/{id}")
     public ResponseEntity<DetailsUsersDto> list(@PathVariable Long id) {
         Optional<Users> user = userRespository.findById(id);
-
         if (user.isPresent()) {
             return ResponseEntity.ok(new DetailsUsersDto(user.get()));
         }
@@ -49,9 +49,9 @@ public class ApiController {
     @PostMapping
     @Transactional
     public ResponseEntity<UsersDto> UsersCadaster(@RequestBody @Valid UserForm form, UriComponentsBuilder uri) {
-        Users user = form.converter();
+        Users user = new Users();
+        BeanUtils.copyProperties(form, user);
         userRespository.save(user);
-
         URI uri1 = uri.path("/zup/{id}").buildAndExpand(user.getId()).toUri();
         return ResponseEntity.created(uri1).body(new UsersDto(user));
     }
@@ -71,7 +71,6 @@ public class ApiController {
     @Transactional //Garantir que ele faça a transação no fim do metodo
     public ResponseEntity<UsersDto> update(@PathVariable Long id, @RequestBody @Valid UpdateUserform form) {
         Optional<Users> optinal = userRespository.findById(id);
-
         if (optinal.isPresent()) {
             Users user = form.update(id, userRespository);
             return ResponseEntity.ok(new UsersDto(user));
@@ -84,7 +83,6 @@ public class ApiController {
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<?> remove(@PathVariable Long id) {
-
         Optional<Users> optinal = userRespository.findById(id);
         if (optinal.isPresent()) {
             userRespository.deleteById(id);

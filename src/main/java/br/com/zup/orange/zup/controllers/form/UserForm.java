@@ -1,27 +1,25 @@
 package br.com.zup.orange.zup.controllers.form;
 
-import br.com.zup.orange.zup.models.Users;
-import br.com.zup.orange.zup.validCpf.CpfValid;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.hibernate.validator.constraints.br.CPF;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class UserForm {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    @NotNull @NotEmpty @Length(min = 5) @Length(max = 200)
+    @NotBlank @NotEmpty @Length(min = 3) @Length(max = 200)
     private String name;
-    @NotNull @NotEmpty
+    @NotBlank @NotEmpty @Email
     private String email;
-    @NotNull @NotEmpty
+    @NotBlank @CPF @NotEmpty
     private String cpf;
     @Pattern(regexp = "^\\d{2}/\\d{2}/\\d{4}$")
-    @NotNull
+    @NotBlank @NotEmpty
     private String bornDate;
 
     public void setName(String name) {
@@ -39,10 +37,5 @@ public class UserForm {
     public void setBornDate(String bornDate) {
         this.bornDate = bornDate;
     }
-    public Users converter(){
-        if(CpfValid.isCPF(cpf)){
-            return new Users(this.name, this.email, this.cpf, LocalDate.parse(this.bornDate, formatter));
-        }
-        throw new IllegalArgumentException("Cpf invalido");
-    }
+
 }
