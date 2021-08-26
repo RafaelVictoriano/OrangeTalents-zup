@@ -7,8 +7,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "viaCep", url="https://viacep.com.br/ws")
+@FeignClient(name = "viaCep", url="${url-viacep}")
 public interface CepClient {
 
     @GetMapping("/{cep}/json")

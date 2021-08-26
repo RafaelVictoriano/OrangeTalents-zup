@@ -45,7 +45,7 @@ public class ExceptionHandling  {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleGlobalExceptions(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("Error", "Internal error"));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("Error", "Internal error "+e.getMessage()));
     }
 
 }

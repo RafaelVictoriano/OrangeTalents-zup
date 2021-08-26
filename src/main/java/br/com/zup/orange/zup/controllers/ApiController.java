@@ -11,8 +11,11 @@ import br.com.zup.orange.zup.models.Users;
 import br.com.zup.orange.zup.repository.AddressRespository;
 import br.com.zup.orange.zup.repository.UserRespository;
 import br.com.zup.orange.zup.service.AddressService;
+import br.com.zup.orange.zup.service.UserService;
+import javassist.NotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -26,70 +29,45 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/zup")
 public class ApiController {
-    @Autowired
-    private UserRespository userRespository;
 
     @Autowired
-    private AddressRespository addressRespository;
-
+    private UserService userService;
     @Autowired
-    private AddressService service;
-
+    private AddressService addressService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<DetailsUsersDto> list(@PathVariable Long id) {
-        Optional<Users> user = userRespository.findById(id);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(new DetailsUsersDto(user.get()));
-        }
-
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<DetailsUsersDto> listUser(@PathVariable Long id) throws NotFoundException {
+        DetailsUsersDto user = userService.listUser(id);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<UsersDto> UsersCadaster(@RequestBody @Valid UserForm form, UriComponentsBuilder uri) {
-        Users user = new Users();
-        BeanUtils.copyProperties(form, user);
-        userRespository.save(user);
-        URI uri1 = uri.path("/zup/{id}").buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(uri1).body(new UsersDto(user));
+    public ResponseEntity<UsersDto> usersRegister(@RequestBody @Valid UserForm form) {
+        UsersDto usersDto = userService.usersRegister(form);
+        return new ResponseEntity<>(usersDto, HttpStatus.CREATED);
     }
 
 
     @PostMapping("/address/{cep}")
     @Transactional
-    public ResponseEntity<AddressDto> AddreesCadaster(@PathVariable("cep")  String cep, UriComponentsBuilder uri) {
-        Address address = service.createAddress(cep);
-        addressRespository.save(address);
-
-        URI uri2 = uri.path("/zup/address/{id}").buildAndExpand(address.getId()).toUri();
-        return ResponseEntity.created(uri2).body(new AddressDto(address));
+    public ResponseEntity<AddressDto> addressRegister(@PathVariable("cep") String cep) {
+        AddressDto addressDto = addressService.addressRegister(cep);
+        return new ResponseEntity<>(addressDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @Transactional //Garantir que ele faça a transação no fim do metodo
-    public ResponseEntity<UsersDto> update(@PathVariable Long id, @RequestBody @Valid UpdateUserform form) {
-        Optional<Users> optinal = userRespository.findById(id);
-        if (optinal.isPresent()) {
-            Users user = form.update(id, userRespository);
-            return ResponseEntity.ok(new UsersDto(user));
-        }
-
-        return ResponseEntity.notFound().build();
-
+    @Transactional
+    public ResponseEntity<UsersDto> update(@PathVariable Long id, @RequestBody @Valid UpdateUserform form) throws NotFoundException {
+        UsersDto userUpdated = userService.update(id, form);
+        return ResponseEntity.ok(userUpdated);
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> remove(@PathVariable Long id) {
-        Optional<Users> optinal = userRespository.findById(id);
-        if (optinal.isPresent()) {
-            userRespository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> remove(@PathVariable Long id) throws NotFoundException {
+        userService.removeUser(id);
+        return ResponseEntity.noContent().build();
 
     }
 
